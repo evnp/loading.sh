@@ -1,0 +1,78 @@
+.TH "LOADING" "1" "August 2024"
+.SH "NAME"
+\fBloading – “tmux-execute” – a lightweight tmux command & layout composer\fR
+.SH DESCRIPTION
+.br
+Basic usage:
+.P
+🚧 Under construction 🚧
+.SH Install
+.P
+Homebrew:
+.RS 2
+.nf
+brew tap evnp/loading\.sh && brew install loading\.sh
+.fi
+.RE
+.P
+NPM:
+.RS 2
+.nf
+npm install \-g loading\.sh
+.fi
+.RE
+.P
+curl:
+.RS 2
+.nf
+read \-rp $'\\n'"Current \\$PATH:"$'\\n'"${PATH//:/ : }"$'\\n\\n'"Enter a directory from the list above: " \\
+  && curl \-L \-o "${REPLY/\\~/$HOME}/loading\.sh" https://github\.com/evnp/loading\.sh/raw/main/loading\.sh \\
+  && chmod +x "${REPLY/\\~/$HOME}/loading\.sh"
+.fi
+.RE
+.P
+loading\.sh has no external dependencies, but it's good practice to audit code before downloading\.sh onto your system to ensure it contains nothing unexpected\. Please view the full source code for loading\.sh here: https://github.com/evnp/loading.sh/blob/master/loading.sh
+.P
+If you also want to install loading\.sh's man page:
+.RS 2
+.nf
+read \-rp $'\\n'"Current \\$MANPATH:"$'\\n'"${MANPATH//:/ : }"$'\\n\\n'"Enter a directory from the list above: " \\
+  && curl \-L \-o "${REPLY/\\~/$HOME}/man1/loading\.sh\.1" https://github\.com/evnp/loading\.sh/raw/main/man/loading\.sh\.1
+.fi
+.RE
+.P
+Verify installation:
+.RS 2
+.nf
+loading\.sh \-v
+==> loading\.sh 2\.0\.2
+
+brew test loading\.sh
+==> Testing loading\.sh
+==> /opt/homebrew/Cellar/loading\.sh/2\.0\.2/bin/loading\.sh test \-\-print 1234 hello world
+.fi
+.RE
+.SH Tests
+.P
+Run once:
+.RS 2
+.nf
+npm install
+npm test
+.fi
+.RE
+.P
+Use \fBfswatch\fP to re\-run tests on file changes:
+.RS 2
+.nf
+brew install fswatch
+npm install
+npm run testw
+.fi
+.RE
+.P
+Non\-OSX: replace \fBbrew install fswatch\fP with package manager of choice 
+.SH License
+.P
+MIT
+
