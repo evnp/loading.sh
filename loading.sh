@@ -5,73 +5,76 @@
 set -euo pipefail
 
 function loading {
-  local atoz cols orig shuf mask repl fps cvrg
-  local alph alps alp1 alp2 alp3 alp4
+	local atoz cols orig shuf mask repl fps cvrg
+	local alph alps alp1 alp2 alp3 alp4
 
-  if [[ " $* " == *' -f '* || " $* " == *' f '* ]] \
-  || [[ " $* " == *' --fin '* || " $* " == *' fin '* ]]
-  then
-    if [[ -n "${LOADING_PID:-}" ]]; then
-      kill "$LOADING_PID" &>/dev/null
-      unset LOADING_PID &>/dev/null
-    fi
-    if [[ -f "$TMPDIR/LOADING_PID" ]]; then
-      kill "$(<"$TMPDIR/LOADING_PID")" &>/dev/null
-      rm -f "$TMPDIR/LOADING_PID"
-    fi
-    echo -ne '\r\033[K'
-    return
-  fi
+	if [[ " $* " == *' -f '* || " $* " == *' f '* ]] \
+	|| [[ " $* " == *' --fin '* || " $* " == *' fin '* ]]
+	then
+		if [[ -n "${LOADING_PID:-}" ]]
+		then
+			kill "$LOADING_PID" &>/dev/null
+			unset LOADING_PID &>/dev/null
+		fi
+		if [[ -f "$TMPDIR/LOADING_PID" ]]
+		then
+			kill "$(<"$TMPDIR/LOADING_PID")" &>/dev/null
+			rm -f "$TMPDIR/LOADING_PID"
+		fi
+		echo -ne '\r\033[K'
+		return
+	fi
 
-  # Parse arguments: fps (integer), cvrg (boolean)
-  fps=20; [[ "$*" =~ ([0-9]+) ]] && fps="${BASH_REMATCH[0]}"
-  [[ " $* " == *' -c '* || " $* " == *' --converge '* ]] && cvrg=TRUE
-  [[ " $* " == *' c '* || " $* " == *' converge '* ]] && cvrg=TRUE
+	# Parse arguments: fps (integer), cvrg (boolean)
+	fps=20; [[ "$*" =~ ([0-9]+) ]] && fps="${BASH_REMATCH[0]}"
+	[[ " $* " == *' -c '* || " $* " == *' --converge '* ]] && cvrg=TRUE
+	[[ " $* " == *' c '* || " $* " == *' converge '* ]] && cvrg=TRUE
 
-  # Determine symbol alphabet:
-  alps=()
-  alp1="■ ▪ ▬ ▮ ◆ ◢ ◣ ◥ ◤ ●◗◖●◀▲▼▶"
-  alp2=" $( printf ".·:⠇˙%.0s" {1..5} )"
-  alp3=" $( printf "▁▂▃▅▇%.0s" {1..5} )"
-  alp4=" $( printf "_⎽-⎻⎺%.0s" {1..5} )"
-  [[ " $* " == *' -s '* || " $* " == *' --shapes '* ]] && alps+=( "${alp1}" )
-  [[ " $* " == *' -l '* || " $* " == *' --lines '* ]] && alps+=( "${alp4}" )
-  [[ " $* " == *' -d '* || " $* " == *' --dots '* ]] && alps+=( "${alp2}" )
-  [[ " $* " == *' -b '* || " $* " == *' --bars '* ]] && alps+=( "${alp3}" )
-  [[ " $* " == *' s '* || " $* " == *' shapes '* ]] && alps+=( "${alp1}" )
-  [[ " $* " == *' l '* || " $* " == *' lines '* ]] && alps+=( "${alp4}" )
-  [[ " $* " == *' d '* || " $* " == *' dots '* ]] && alps+=( "${alp2}" )
-  [[ " $* " == *' b '* || " $* " == *' bars '* ]] && alps+=( "${alp3}" )
-  ! (( ${#alps[@]} )) && alps+=( "${alp1}" "${alp2}" "${alp3}" "${alp4}" )
-  alph="${alps[$(( RANDOM % ${#alps[@]} ))]}" # Choose symbol alphabet at random.
+	# Determine symbol alphabet:
+	alps=()
+	alp1="■ ▪ ▬ ▮ ◆ ◢ ◣ ◥ ◤ ●◗◖●◀▲▼▶"
+	alp2=" $( printf ".·:⠇˙%.0s" {1..5} )"
+	alp3=" $( printf "▁▂▃▅▇%.0s" {1..5} )"
+	alp4=" $( printf "_⎽-⎻⎺%.0s" {1..5} )"
+	[[ " $* " == *' -s '* || " $* " == *' --shapes '* ]] && alps+=( "${alp1}" )
+	[[ " $* " == *' -l '* || " $* " == *' --lines '* ]] && alps+=( "${alp4}" )
+	[[ " $* " == *' -d '* || " $* " == *' --dots '* ]] && alps+=( "${alp2}" )
+	[[ " $* " == *' -b '* || " $* " == *' --bars '* ]] && alps+=( "${alp3}" )
+	[[ " $* " == *' s '* || " $* " == *' shapes '* ]] && alps+=( "${alp1}" )
+	[[ " $* " == *' l '* || " $* " == *' lines '* ]] && alps+=( "${alp4}" )
+	[[ " $* " == *' d '* || " $* " == *' dots '* ]] && alps+=( "${alp2}" )
+	[[ " $* " == *' b '* || " $* " == *' bars '* ]] && alps+=( "${alp3}" )
+	! (( ${#alps[@]} )) && alps+=( "${alp1}" "${alp2}" "${alp3}" "${alp4}" )
+	alph="${alps[$(( RANDOM % ${#alps[@]} ))]}" # Choose symbol alphabet at random.
 
-  cols="$( tput cols )" # Record width (in char columns) of current terminal pane.
-  atoz="$( echo {a..z} | tr -d ' ' )" # Construct full alphabet string, a-z.
+	cols="$( tput cols )" # Record width (in char columns) of current terminal pane.
+	atoz="$( echo {a..z} | tr -d ' ' )" # Construct full alphabet string, a-z.
 
-  # Construct a string of length matching width of terminal pane, random chars a-z:
-  # shellcheck disable=SC2005,SC2018
-  orig="$( echo "$( LC_ALL=true tr -dc 'a-z' </dev/urandom | head -c "${cols}" )" )"
-  shuf="${orig}"
+	# Construct a string of length matching width of terminal pane, random chars a-z:
+	# shellcheck disable=SC2005,SC2018
+	orig="$( echo "$( LC_ALL=true tr -dc 'a-z' </dev/urandom | head -c "${cols}" )" )"
+	shuf="${orig}"
 
-  while true
-  do # Pick 10 random chars from alphabet:
-    # shellcheck disable=SC2005,SC2018
-    mask="$( echo "$( LC_ALL=true tr -dc 'a-z' </dev/urandom | head -c 10 )" )"
-    repl="$( rev <<< "${mask}" )" # Reverse mask to perform random swap of chars.
+	while true
+	do # Pick 10 random chars from alphabet:
+		# shellcheck disable=SC2005,SC2018
+		mask="$( echo "$( LC_ALL=true tr -dc 'a-z' </dev/urandom | head -c 10 )" )"
+		repl="$( rev <<< "${mask}" )" # Reverse mask to perform random swap of chars.
 
-    [[ "${cvrg:-}" != TRUE ]] && shuf="${orig}" # If no converge, reset shuf -> orig.
+		[[ "${cvrg:-}" != TRUE ]] && shuf="${orig}" # If no converge, reset shuf -> orig.
 
-    if [[ -n "${repl}" && -n "${alph}" ]]; then
-      shuf="$( sed "y/${mask}/${repl}/" <<< "${shuf}" )" # Perform random char swap.
-      echo -ne "$( sed "y/${atoz}/${alph}/" <<< "${shuf}" )\r"
-      # Print, replacing a-z chars with rand, and overwriting last lines of output.
-    fi
+		if [[ -n "${repl}" && -n "${alph}" ]]
+		then
+			shuf="$( sed "y/${mask}/${repl}/" <<< "${shuf}" )" # Perform random char swap.
+			echo -ne "$( sed "y/${atoz}/${alph}/" <<< "${shuf}" )\r"
+			# Print, replacing a-z chars with rand, and overwriting last lines of output.
+		fi
 
-    sleep "$( bc -l <<< "1/${fps}" )" # Sleep long enough to establish correct FPS.
-  done &
+		sleep "$( bc -l <<< "1/${fps}" )" # Sleep long enough to establish correct FPS.
+	done &
 
-  export LOADING_PID="$!"
-  echo "$LOADING_PID" > "$TMPDIR/LOADING_PID"
+	export LOADING_PID="$!"
+	echo "$LOADING_PID" > "$TMPDIR/LOADING_PID"
 }
 
 loading "$@"
