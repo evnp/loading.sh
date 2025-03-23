@@ -16,10 +16,10 @@ function loading {
 			kill "$LOADING_PID" &>/dev/null
 			unset LOADING_PID &>/dev/null
 		fi
-		if [[ -f "$TMPDIR/LOADING_PID" ]]
+		if [[ -n "${TMPDIR:-}" && -f "$TMPDIR/LOADING_PID" ]]
 		then
-			kill "$(<"$TMPDIR/LOADING_PID")" &>/dev/null
-			rm -f "$TMPDIR/LOADING_PID"
+			kill "$(<"${TMPDIR:-}/LOADING_PID")" &>/dev/null
+			rm -f "${TMPDIR:-}/LOADING_PID"
 		fi
 		echo -ne '\r\033[K'
 		return
@@ -77,7 +77,11 @@ function loading {
 	done &
 
 	export LOADING_PID="$!"
-	echo "$LOADING_PID" > "$TMPDIR/LOADING_PID"
+
+	if [[ -n "$LOADING_PID" && -n "${TMPDIR:-}" ]]
+	then
+		echo "$LOADING_PID" > "$TMPDIR/LOADING_PID"
+	fi
 }
 
 loading "$@"
