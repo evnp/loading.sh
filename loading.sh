@@ -47,7 +47,10 @@ function loading {
 	! (( ${#alps[@]} )) && alps+=( "${alp1}" "${alp2}" "${alp3}" "${alp4}" )
 	alph="${alps[$(( RANDOM % ${#alps[@]} ))]}" # Choose symbol alphabet at random.
 
-	cols="$( tput cols )" # Record width (in char columns) of current terminal pane.
+  # Record width (in char columns) of current terminal pane.
+	cols="$( tput cols || true )"
+	! [[ "${cols}" =~ ^[0-9]+$ ]] && cols=100
+
 	atoz="$( echo {a..z} | tr -d ' ' )" # Construct full alphabet string, a-z.
 
 	# Construct a string of length matching width of terminal pane, random chars a-z:
