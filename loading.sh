@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 function loading {
-  local cols alph shps orig shuf mask repl
-  local alp1 alp2 alp3 alp4
+  local atoz cols orig shuf mask repl
+  local alph alps alp1 alp2 alp3 alp4
 
   if [[ " $* " == *' -f '* ||" $* " == *' --fin '* || " $* " == *' fin '* ]]
   then
@@ -18,29 +18,28 @@ function loading {
 
   # Parse arguments: fps (integer), cvrg (boolean)
   fps=20; [[ "$*" =~ ([0-9]+) ]] && fps="${BASH_REMATCH[0]}"
-  [[ " $* " == *' -c '* || " $* " == *' --converge '* || " $* " == *' converge '* ]] \
-    && cvrg=TRUE
+  [[ " $* " == *' -c '* || " $* " == *' --converge '* ]] && cvrg=TRUE
+  [[ " $* " == *' c '* || " $* " == *' converge '* ]] && cvrg=TRUE
 
   # Determine symbol alphabet:
-  shps=()
+  alps=()
   alp1="■ ▪ ▬ ▮ ◆ ◢ ◣ ◥ ◤ ●◗◖●◀▲▼▶"
   alp2=" $( printf ".·:⠇˙%.0s" {1..5} )"
   alp3=" $( printf "▁▂▃▅▇%.0s" {1..5} )"
   alp4=" $( printf "_⎽-⎻⎺%.0s" {1..5} )"
-  [[ " $* " == *' -s '* || " $* " == *' --shapes '* || " $* " == *' shapes '* ]] && \
-    shps+=( "${alp1}" )
-  [[ " $* " == *' -d '* || " $* " == *' --dots '* || " $* " == *' dots '* ]] && \
-    shps+=( "${alp2}" )
-  [[ " $* " == *' -b '* || " $* " == *' --bars '* || " $* " == *' bars '* ]] && \
-    shps+=( "${alp3}" )
-  [[ " $* " == *' -l '* || " $* " == *' --lines '* || " $* " == *' lines '* ]] && \
-    shps+=( "${alp4}" )
-  ! (( ${#shps[@]} )) &&
-    shps+=( "${alp1}" "${alp2}" "${alp3}" "${alp4}" )
-  shps="${shps[$(( RANDOM % ${#shps[@]} ))]}"
+  [[ " $* " == *' -s '* || " $* " == *' --shapes '* ]] && alps+=( "${alp1}" )
+  [[ " $* " == *' -l '* || " $* " == *' --lines '* ]] && alps+=( "${alp4}" )
+  [[ " $* " == *' -d '* || " $* " == *' --dots '* ]] && alps+=( "${alp2}" )
+  [[ " $* " == *' -b '* || " $* " == *' --bars '* ]] && alps+=( "${alp3}" )
+  [[ " $* " == *' s '* || " $* " == *' shapes '* ]] && alps+=( "${alp1}" )
+  [[ " $* " == *' l '* || " $* " == *' lines '* ]] && alps+=( "${alp4}" )
+  [[ " $* " == *' d '* || " $* " == *' dots '* ]] && alps+=( "${alp2}" )
+  [[ " $* " == *' b '* || " $* " == *' bars '* ]] && alps+=( "${alp3}" )
+  ! (( ${#alps[@]} )) && alps+=( "${alp1}" "${alp2}" "${alp3}" "${alp4}" )
+  alph="${alps[$(( RANDOM % ${#alps[@]} ))]}" # Choose symbol alphabet at random.
 
   cols="$( tput cols )" # Record width (in char columns) of current terminal pane.
-  alph="$( echo {a..z} | tr -d ' ' )" # Construct full alphabet string, a-z.
+  atoz="$( echo {a..z} | tr -d ' ' )" # Construct full alphabet string, a-z.
 
   # Construct a string of length matching width of terminal pane, random chars a-z:
   # shellcheck disable=SC2005,SC2018
@@ -55,10 +54,10 @@ function loading {
 
     [[ "${cvrg}" != TRUE ]] && shuf="${orig}" # If not converging, reset shuf to orig.
 
-    if [[ -n "${repl}" && -n "${shps}" ]]; then
+    if [[ -n "${repl}" && -n "${alph}" ]]; then
       shuf="$( sed "y/${mask}/${repl}/" <<< "${shuf}" )" # Perform random char swap.
-      echo -ne "$( sed "y/${alph}/${shps}/" <<< "${shuf}" )\r"
-      # Print, replacing a-z chars with shpses, and overwriting last lnes of output.
+      echo -ne "$( sed "y/${atoz}/${alph}/" <<< "${shuf}" )\r"
+      # Print, replacing a-z chars with rand, and overwriting last lines of output.
     fi
 
     sleep "$( bc -l <<< "1/${fps}" )" # Sleep long enough to establish correct FPS.
