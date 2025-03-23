@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# loading.sh 0.0.2
+
+set -euo pipefail
+
 function loading {
   while true
   do

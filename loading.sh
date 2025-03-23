@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 
+# loading.sh 0.0.2
+
+set -euo pipefail
+
 function loading {
-  local atoz cols orig shuf mask repl
+  local atoz cols orig shuf mask repl fps cvrg
   local alph alps alp1 alp2 alp3 alp4
 
-  if [[ " $* " == *' -f '* ||" $* " == *' --fin '* || " $* " == *' fin '* ]]
+  if [[ " $* " == *' -f '* || " $* " == *' f '* ]] \
+  || [[ " $* " == *' --fin '* || " $* " == *' fin '* ]]
   then
-    kill "$LOADING_PID" &>/dev/null
-    unset LOADING_PID &>/dev/null
+    if [[ -n "${LOADING_PID:-}" ]]; then
+      kill "$LOADING_PID" &>/dev/null
+      unset LOADING_PID &>/dev/null
+    fi
     if [[ -f "$TMPDIR/LOADING_PID" ]]; then
       kill "$(<"$TMPDIR/LOADING_PID")" &>/dev/null
       rm -f "$TMPDIR/LOADING_PID"
@@ -52,7 +59,7 @@ function loading {
     mask="$( echo "$( LC_ALL=true tr -dc 'a-z' </dev/urandom | head -c 10 )" )"
     repl="$( rev <<< "${mask}" )" # Reverse mask to perform random swap of chars.
 
-    [[ "${cvrg}" != TRUE ]] && shuf="${orig}" # If not converging, reset shuf to orig.
+    [[ "${cvrg:-}" != TRUE ]] && shuf="${orig}" # If no converge, reset shuf -> orig.
 
     if [[ -n "${repl}" && -n "${alph}" ]]; then
       shuf="$( sed "y/${mask}/${repl}/" <<< "${shuf}" )" # Perform random char swap.
