@@ -1,6 +1,6 @@
 {
   "name": "loading.sh",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Loading with style in the shell.",
   "main": "loading.sh",
   "files": [

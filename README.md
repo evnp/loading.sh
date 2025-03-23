@@ -50,11 +50,11 @@ read -rp $'\n'"Current \$MANPATH:"$'\n'"${MANPATH//:/ : }"$'\n\n'"Enter a direct
 Verify installation:
 ```sh
 loading.sh -v
-==> loading.sh 2.0.2
+==> loading.sh 0.0.2
 
 brew test loading.sh
 ==> Testing loading.sh
-==> /opt/homebrew/Cellar/loading.sh/2.0.2/bin/loading.sh test --print 1234 hello world
+==> /opt/homebrew/Cellar/loading.sh/0.0.2/bin/loading.sh test --print 1234 hello world
 ```
 
 Tests
